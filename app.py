@@ -8,6 +8,7 @@ import sys
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+
 from PySide6.QtCore import Qt, QLocale, QTranslator, QDateTime, QDate, QTime, Signal, QSettings, QSize, QEventLoop, \
     QTimer
 from PySide6.QtGui import QIcon, QGuiApplication
@@ -15,13 +16,12 @@ from PySide6.QtWidgets import QApplication, QFileDialog, QTableWidgetItem, QDial
     QHBoxLayout
 from loguru import logger
 from qfluentwidgets import setThemeColor, setTheme, Theme, RoundMenu, Action, MessageBox, TableItemDelegate, \
-    NavigationItemPosition, FluentWindow, SubtitleLabel, setFont, toggleTheme, SplashScreen
+    NavigationItemPosition, FluentWindow, SubtitleLabel, setFont, toggleTheme, SplashScreen, theme
 from qfluentwidgets.common import FluentIcon as FIF
 from win32file import CreateFile, SetFileTime, CloseHandle
 from win32file import GENERIC_READ, GENERIC_WRITE, OPEN_EXISTING
 from ui import Ui_Form
 from ui_sec_menu import Ui_Dialog
-
 import res_rc
 import win32timezone
 
@@ -176,9 +176,10 @@ class CustomDelegate(TableItemDelegate):
 
 
 class APP(FluentWindow):
+    build_time = '202404211901'
     software_name = 'FileDateChanger'
-    software_name_version = '0.6.0'
-    build_version = software_name_version.replace('.', '') + '202404201859'
+    software_name_version = '0.7.0'
+    build_version = software_name_version.replace('.', '') + build_time
     software_name_author = 'Gentlesprite'
     copy_right = f'Copyright © 2024 {software_name_author}.'
     software_name_simplified_chinese = '文件日期修改器'
@@ -198,11 +199,9 @@ class APP(FluentWindow):
     setting_path = os.path.join(work_dir, 'config.ini')
     log_path = os.path.join(work_dir,
                             software_name + '_' + software_name_version.replace('.', '_') + '.log')  # 日志路径
-    build_version = software_name_version.replace('.', '') + datetime.now().strftime('%Y%m%d%H%M')
 
     def __init__(self):
         super(APP, self).__init__()
-
         self.file_name: list = []  # 存储路径->[路径]
         self.file_info: dict = {}  # 存储->{路径:[创建时间,修改时间,访问时间]}
         self.current_left_click_row: int = 0  # 初始化当前鼠标左键单击的行
@@ -231,20 +230,17 @@ class APP(FluentWindow):
         self.ui.tool_button_toggle_theme.setIcon(FIF.CONSTRACT)
         self.delegate: CustomDelegate = ...  # 定义表格自定义委托
         self.dialog = SecDialog(QIcon(APP.software_logo))  # 用户变更时间的二级窗口
-        self.global_init_ymd: QDate = ...  # 设置初始日期，可以是当前系统日期
-        self.global_init_hms: QTime = ...  # 设置初始时间，可以是当前系统时间
         self.local_change_flag = False
         self.global_change_flag = False
         self.local_change_create_time_flag = False
-        self.init_global_time_setting()  # 初始化全局时间
         self.init_table()  # 初始化表格内容
         self.band()  # 初始化绑定按键
 
     def tool_tips(self):
         self.ui.text_edit_path_input.setToolTip(
-            '将文件拖入、粘贴到此处以开始修改,也可复制或手动输入路径到此处以回车换行作为分割符以多个文件,表格中成功显示视为有效文件。')
+            '将文件拖入、粘贴到此处以开始,或点击右边添加文件图标,也可复制或手动输入文件路径到此处以回车换行作为分割符以多个文件,表格中成功显示视为有效文件。')
         self.ui.text_edit_path_input.setPlaceholderText(
-            '将文件拖入、粘贴到此处以开始修改,也可复制或手动输入路径到此处以回车换行作为分割符以多个文件,表格中成功显示视为有效文件。')
+            '将文件拖入、粘贴到此处以开始,或点击右边添加文件图标,也可复制或手动输入文件路径到此处以回车换行作为分割符以多个文件,表格中成功显示视为有效文件。')
         self.ui.calendar_picker_ymd.setToolTip('选择一个年月日作为全局的设定。')
         self.ui.time_picker_hms.setToolTip('选择一个时分秒作为全局的设定。')
         self.ui.push_button_change_time.setToolTip('点此进行提交修改。')
@@ -252,7 +248,7 @@ class APP(FluentWindow):
         self.ui.check_box_create_time.setToolTip('控制全局是否对创建时间进行修改的开关。')
         self.ui.check_box_modify_time.setToolTip('控制全局是否对修改时间进行修改的开关。')
         self.ui.check_box_modify_time.setToolTip('控制全局是否对访问时间进行修改的开关')
-        self.ui.tool_button_toggle_theme.setToolTip('在亮/暗色主题间切换。')
+        self.ui.tool_button_toggle_theme.setToolTip('在亮/暗色主题间切换,默认主题跟随系统。')
         self.ui.table_widget_info_bar.setToolTip('显示填入输入框中文件信息的表格。')
 
     def init_setting(self):
@@ -263,8 +259,29 @@ class APP(FluentWindow):
             self.ui.check_box_auto_clear.setChecked(bool(int(self.setting.value('CHECK/auto_clear'))))
             last_open_dir: str = os.path.normpath(str(self.setting.value('PATH/last_open_dir')))
             self.open_dir_path: str = last_open_dir if os.path.isdir(last_open_dir) else self.open_dir_path
-        except Exception as e:
-            logger.info(f'未找到配置文件:{e}')
+            theme_mode = self.setting.value('THEME/mode')
+            if not theme_mode:
+                setTheme(Theme.AUTO)
+            elif theme_mode == Theme.LIGHT.value:
+                setTheme(Theme.LIGHT)
+            elif theme_mode == Theme.DARK.value:
+                setTheme(Theme.DARK)
+
+        except Exception as error:
+            setTheme(Theme.AUTO)
+            file_not_found = False
+            try:
+                os.remove(APP.setting_path)
+            except Exception as e:
+                file_not_found = True
+                logger.error(e)
+            finally:
+                logger.info(
+                    '已经删除错误的配置文件,在软件关闭后根据当前配置重新生成新的配置文件,此次运行配置参数将全部为默认。')
+            if file_not_found:
+                logger.warning('未找到配置文件!')
+            else:
+                logger.error(f'或配置文件出错:{error}')
 
     def closeEvent(self, event):
         self.setting.setValue('CHECK/create_time', int(self.ui.check_box_create_time.isChecked()))
@@ -272,6 +289,7 @@ class APP(FluentWindow):
         self.setting.setValue('CHECK/access_time', int(self.ui.check_box_access_time.isChecked()))
         self.setting.setValue('CHECK/auto_clear', int(self.ui.check_box_auto_clear.isChecked()))
         self.setting.setValue('PATH/last_open_dir', self.open_dir_path)
+        self.setting.setValue('THEME/mode', theme().value)
         event.accept()
 
     def init_ui(self):
@@ -295,13 +313,6 @@ class APP(FluentWindow):
         # 4. 隐藏启动页面
         self.splashScreen.finish()
         setThemeColor(APP.software_theme_color)  # 设置主题颜色
-        setTheme(APP.software_theme_mode)  # 设置暗色主题
-
-    def init_global_time_setting(self):
-        self.ui.calendar_picker_ymd.setDate(QDateTime.currentDateTime().date())
-        self.ui.time_picker_hms.setTime(QDateTime.currentDateTime().time())
-        self.global_init_ymd: QDate = self.ui.calendar_picker_ymd.getDate()
-        self.global_init_hms: QTime = self.ui.time_picker_hms.getTime()
 
     def init_table(self):
         self.ui.table_widget_info_bar.setContextMenuPolicy(Qt.CustomContextMenu)  # 打开右键菜单策略
@@ -333,13 +344,13 @@ class APP(FluentWindow):
         self.ui.table_widget_info_bar.itemEntered.connect(self.update_tooltip)
         self.ui.table_widget_info_bar.leaveEvent = self.on_mouse_leave_table
         self.delegate.left_double_click_signal_pos_data.connect(self.receive_left_double_clicked_pos)
-        self.ui.calendar_picker_ymd.dateChanged.connect(self.receive_global_ymd_time_change)
-        self.ui.time_picker_hms.timeChanged.connect(self.receive_global_hms_time_change)
+        self.ui.calendar_picker_ymd.datePicked.connect(self.receive_global_ymd_time_change)
+        self.ui.time_picker_hms.timePicked.connect(self.receive_global_hms_time_change)
         self.dialog.signal_time_data.connect(self.receive_local_time_change)
         self.ui.tool_button_toggle_theme.clicked.connect(lambda: toggleTheme(lazy=True))
 
     def on_mouse_leave_table(self, e):
-        self.ui.table_widget_info_bar.setToolTip('显示填入输入框中文件信息的表格.')
+        self.ui.table_widget_info_bar.setToolTip('显示填入输入框中文件信息的表格。')
 
     def receive_local_time_change(self, time: str, pos: tuple, selected_item: dict or None) -> None:
         row, column = pos
@@ -353,16 +364,17 @@ class APP(FluentWindow):
                              column,
                              selected_item))
 
-    def receive_global_ymd_time_change(self, time) -> None:
+    def receive_global_ymd_time_change(self, date: QDate) -> None:
         """
-        :param time:
+        :param date:
             全局时分秒变量,
             更改到表格中
             同时更新self.file_name和self.file_info
         :return:
         """
-        ymd_str = datetime(time.year(), time.month(), time.day()).strftime('%Y年%#m月%#d日')
+        ymd_str = datetime(date.year(), date.month(), date.day()).strftime('%Y年%#m月%#d日')
         if self.file_info:
+            self.ui.calendar_picker_ymd.handle_update_time(date=date)
             file_info = self.file_info.copy()
             for path, timestamps in file_info.items():
                 if not isinstance(timestamps, list) or len(timestamps) != 3:
@@ -383,9 +395,10 @@ class APP(FluentWindow):
             self.file_info = file_info
             self.set_table(change_mode=UserFormChangeMode.global_time)
         else:
+            self.show_message(message='内容为空,请先导入文件。')
             logger.warning('内容为空,没有进行任何更新。')
 
-    def receive_global_hms_time_change(self, time) -> None:
+    def receive_global_hms_time_change(self, time: QTime) -> None:
         """
         :param time:
             全局时分秒变量,
@@ -395,6 +408,7 @@ class APP(FluentWindow):
         """
         hms_str = f"{time.hour():02d}:{time.minute():02d}:{time.second():02d}"  # 使用f-string直接格式化时分秒
         if self.file_info:
+            self.ui.time_picker_hms.handle_set_time(time)
             file_info = self.file_info.copy()
             for path, timestamps in file_info.items():
                 if not isinstance(timestamps, list) or len(timestamps) != 3:
@@ -415,8 +429,8 @@ class APP(FluentWindow):
             self.file_info = file_info
             self.set_table(change_mode=UserFormChangeMode.global_time)
         else:
+            self.show_message(message='内容为空,请先导入文件。')
             logger.warning('内容为空,没有进行任何更新。')
-
 
     def update_tooltip(self, item) -> None:
         """
@@ -426,16 +440,14 @@ class APP(FluentWindow):
         """
         if item is None:
             return
-
         row: int = item.row()
         col: int = item.column()
-        text_tip = ['鼠标双击此处即可单独修改时间。', '鼠标双击此处即可单独修改路径。']
+        text_tip = ['鼠标双击此处即可单独修改路径。', '鼠标双击此处即可单独修改时间。']
         tip = ''
-        if col == 1:
+        if col == 0:
             tip = text_tip[0]
-        elif col in range(2, 4):
+        elif col in range(1, 4):
             tip = text_tip[1]
-
         title: str = self.ui.table_widget_info_bar.horizontalHeaderItem(col).text()
         file_path: str = self.ui.table_widget_info_bar.item(row, col).text()
 
@@ -607,6 +619,8 @@ class APP(FluentWindow):
                 self.ui.table_widget_info_bar.setItem(row_position, 3, access_time_item)
                 self.file_info[file_path] = [create_time, modify_time, access_time]
                 self.ui.table_widget_info_bar.scrollToItem(path_item)
+                self.ui.table_widget_info_bar.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+                self.ui.table_widget_info_bar.horizontalHeader().setMaximumSectionSize(400)  # 设置最大宽度为200像素
 
     def set_table(self, change_mode: UserFormChangeMode = UserFormChangeMode.new,
                   **kwargs: Optional[tuple]) -> None:  # 增
@@ -679,18 +693,16 @@ class APP(FluentWindow):
             # 更新info_bar中与self.file_info有差异的条目
             for path, new_time in self.file_info.items():
                 if path in current_info_bar:
-                    old_time = current_info_bar[path]
-                    if old_time != new_time:
-                        at_least_one = True if not at_least_one else at_least_one
-                        nt = new_time
-                        current_info_bar[path] = new_time
-                        row_index = self._find_table_row_by_path(path)
-                        if row_index is not None:
-                            for col_index, timestamp in enumerate(new_time, start=1):
-                                item = QTableWidgetItem(timestamp)
-                                self.ui.table_widget_info_bar.setItem(row_index, col_index, item)
-                        else:
-                            logger.warning(f'在表中找不到{path}的行。')
+                    at_least_one = True if not at_least_one else at_least_one
+                    nt = new_time
+                    current_info_bar[path] = new_time
+                    row_index = self._find_table_row_by_path(path)
+                    if row_index is not None:
+                        for col_index, timestamp in enumerate(new_time, start=1):
+                            item = QTableWidgetItem(timestamp)
+                            self.ui.table_widget_info_bar.setItem(row_index, col_index, item)
+                    else:
+                        logger.warning(f'在表中找不到{path}的行。')
                 else:
                     logger.warning(f'在表中找不到self.file_info的路径"{path}"。')
             if at_least_one:
@@ -707,6 +719,9 @@ class APP(FluentWindow):
                     _new_time.append(nt[2])
                 logger.success(
                     f'[全局时间] [发生改变]:{_text} -> {_new_time}')
+
+    def show_message(self, message, title='提示'):
+        MessageBox(title=title, content=message, parent=self).exec()
 
     def _find_table_row_by_path(self, path: str) -> Optional[int]:
         """
@@ -771,36 +786,15 @@ class APP(FluentWindow):
         self.ui.text_edit_path_input.textChanged.connect(
             lambda: self.typing_mode(self.ui.text_edit_path_input.toPlainText()))
 
-    def open_dir_mode(self, change_mode=UserFormChangeMode.new, **kwargs):  # 打开文件夹模式
+    def is_duplicate_file(func):
+        def wrapper(self, *args, **kwargs):
+            result: list = func(self, *args, **kwargs)
+            if len(result) < 10:
+                self.show_message('\n'.join(list(set(result)))) if result else 0
+            else:
+                self.show_message('检测到多数文件重复,已自动为您过滤!')
 
-        self.open_dir_path = APP.default_path if not os.path.isdir(self.open_dir_path) else self.open_dir_path
-        if change_mode == UserFormChangeMode.new:
-            data: list = [os.path.normpath(i) for i in
-                          QFileDialog.getOpenFileNames(self, "选择文件", self.open_dir_path, "All Files (*)")[
-                              0]]
-            self.open_dir_path = os.path.dirname(os.path.normpath(data[-1])) if data else self.open_dir_path
-            if self.file_name:
-                for i in data:
-                    if i.lower() not in [f.lower() for f in self.file_name]:
-                        self.file_name.append(i)
-                    else:
-                        logger.warning(f'"{i}"已存在!')
-            else:
-                self.file_name = data
-            self.set_table(change_mode=change_mode)
-        elif change_mode == UserFormChangeMode.path:
-            # todo:当前有项才能选择
-            if self.file_info:  # 首先判断表中要有项
-                pos: tuple = kwargs['pos']  # 再得到鼠标选择的表格位置
-                new_key: str = QFileDialog.getOpenFileName(self, "选择文件", self.open_dir_path, "All Files (*)")[0]
-                # 加入对项中已存在的文件进行判断
-                if os.path.normpath(new_key) in self.file_name:
-                    logger.warning(f'{new_key}已存在!')
-                else:
-                    data: tuple = new_key, pos[0], pos[1]
-                    self.set_table(change_mode=change_mode, data=data)
-            else:
-                logger.error(self.tr('未选择任何项!'))
+        return wrapper
 
     def open_time_picker_dialog(self, pos, change_mode: UserFormChangeMode, **kwargs):
         q_format = "yyyy年M月d日 H:mm:ss"  # 定义转换成QDateTime类型的格式
@@ -883,22 +877,57 @@ class APP(FluentWindow):
                     for i in range(len(paths))))
             self.dialog.exec()
 
-    def drop_mode(self, data: list) -> None:  # 拖入模式
-        for i in data:
+    @is_duplicate_file
+    def open_dir_mode(self, change_mode=UserFormChangeMode.new, **kwargs):  # 打开文件夹模式
+        duplicate_file: list = []
+        self.open_dir_path = APP.default_path if not os.path.isdir(self.open_dir_path) else self.open_dir_path
+        if change_mode == UserFormChangeMode.new:
+            data: list = [os.path.normpath(i) for i in
+                          QFileDialog.getOpenFileNames(self, "选择文件", self.open_dir_path, "All Files (*)")[
+                              0]]
+            self.open_dir_path = os.path.dirname(os.path.normpath(data[-1])) if data else self.open_dir_path
+            if self.file_name:
+                for i in data:
+                    if i.lower() not in [f.lower() for f in self.file_name]:
+                        self.file_name.append(i)
+                    else:
+                        duplicate_file.append(f'"{i}"已存在!')
+                        logger.warning(f'"{i}"已存在!')
+            else:
+                self.file_name = data
+            self.set_table(change_mode=change_mode)
+        elif change_mode == UserFormChangeMode.path:
+            # todo:当前有项才能选择
+            if self.file_info:  # 首先判断表中要有项
+                pos: tuple = kwargs['pos']  # 再得到鼠标选择的表格位置
+                new_key: str = QFileDialog.getOpenFileName(self, "选择文件", self.open_dir_path, "All Files (*)")[0]
+                # 加入对项中已存在的文件进行判断
+                if os.path.normpath(new_key) in self.file_name:
+                    duplicate_file.append(f'"{new_key}"已存在!')
+                    logger.warning(f'{new_key}已存在!')
+                else:
+                    data: tuple = new_key, pos[0], pos[1]
+                    self.set_table(change_mode=change_mode, data=data)
+            else:
+                logger.error(self.tr('未选择任何项!'))
+        return duplicate_file
+
+    def drop_mode(self, all_path, new_path) -> list:  # 拖入模式
+        for i in all_path:
             if i.lower() not in [f.lower() for f in self.file_name]:
                 self.file_name.append(i)
         self.set_table(change_mode=UserFormChangeMode.new)
 
-    def paste_mode(self, path):
+    def paste_mode(self, all_path: str, new_path) -> None:
         if self.file_name:
-            for i in path:
+            for i in all_path:
                 if i.lower() not in [f.lower() for f in self.file_name]:
                     self.file_name.append(i)
         else:
-            self.file_name = path
+            self.file_name = all_path
         self.set_table(change_mode=UserFormChangeMode.new)
 
-    def typing_mode(self, res) -> None:
+    def typing_mode(self, res) -> list:
         # 检查用户是否完成了输入
         file_names: list = res.rstrip('\n').split('\n')
         if res and res.endswith('\n'):
@@ -911,6 +940,7 @@ class APP(FluentWindow):
                 if file_name and os.path.isfile(file_name) and file_name.lower() not in [f.lower() for f in
                                                                                          self.file_name]:
                     self.file_name.append(os.path.normpath(file_name))
+
             # 存储路径
             self._process_new_table()
             logger.info(f'手动输入内容发生改变:"{self.file_name}"')
@@ -920,13 +950,8 @@ class APP(FluentWindow):
                 self.delete_content(item)
             self._process_new_table()
 
-    def show_message(self, message, title='提示'):
-        MessageBox(title=title, content=message, parent=self).exec()
-
     def checker(func):
         def wrapper(self, *args, **kwargs):
-            ymd = self.ui.calendar_picker_ymd.getDate()
-            hms = self.ui.time_picker_hms.getTime()
             path: str = self.ui.text_edit_path_input.toPlainText().strip()  # 去除首尾空白字符
             # 用于显示错误消息的统一函数
             if not self.file_name:
@@ -937,14 +962,33 @@ class APP(FluentWindow):
                 return
             if not self.local_change_flag:
                 if not self.global_change_flag:
-                    if hms == self.global_init_hms:
-                        self.show_message('未选择时分秒!')
-                        return
-                    if ymd == self.global_init_ymd:
-                        self.show_message('未选择年月日!')
-                        return
+                    self.show_message('至少选择一个年月日或时分秒!')
+                    return
             # 执行原函数
-            return func(self, *args, **kwargs)
+            result = func(self, *args, **kwargs)
+            res_info = []
+            error_info: dict = {}
+            for i in result.items():
+                res_info.append(i)
+            for j in res_info:
+                if j[1][0] is False:
+                    error_info[j[0]] = f'{j[1][1]}'
+            ei = '\n'.join([f'文件"{os.path.basename(j[0])}" 原因:[{j[1]}]' for j in error_info.items()])
+            title = '修改结果'
+            if error_info:
+                message = f'找到如下错误信息:\n{ei}'
+                message += '\n其余全部修改成功。' if len(self.file_info) - len(error_info) >= 1 else ''
+                self.show_message(title=title, message=message)
+            else:
+                self.show_message(title=title, message=f'修改成功')
+            # 更新局部提交flag
+            self.local_change_flag = False
+            self.global_change_flag = False
+            self.local_change_create_time_flag = self.local_change_flag
+            self.ui.calendar_picker_ymd.init_setting()
+            self.ui.time_picker_hms.init_setting(showSeconds=True)
+            if self.ui.check_box_auto_clear.isChecked():
+                self.ui.text_edit_path_input.setText(None)
 
         return wrapper
 
@@ -960,30 +1004,7 @@ class APP(FluentWindow):
                                                                   modify_time=modify_time_stamp,
                                                                   access_time=access_time_stamp)
             result[_file_path] = [_result, _reason]
-        res_info = []
-        error_info: dict = {}
-        for i in result.items():
-            res_info.append(i)
-        for j in res_info:
-            if j[1][0] is False:
-                error_info[j[0]] = f'{j[1][1]}'
-        ei = '\n'.join([f'文件"{os.path.basename(j[0])}" 原因:[{j[1]}]' for j in error_info.items()])
-        title = '修改结果'
-        if error_info:
-            message = f'找到如下错误信息:\n{ei}'
-            message += '\n其余全部修改成功。' if len(self.file_info) - len(error_info) >= 1 else ''
-            self.show_message(title=title, message=message)
-        else:
-            self.show_message(title=title, message=f'修改成功')
-        # 更新初始化时间
-        self.global_init_ymd = self.ui.calendar_picker_ymd.getDate()
-        self.global_init_hms = self.ui.time_picker_hms.getTime()
-        # 更新局部提交flag
-        self.local_change_flag = False
-        self.global_change_flag = False
-        self.local_change_create_time_flag = self.local_change_flag
-        if self.ui.check_box_access_time.isChecked():
-            self.ui.text_edit_path_input.setText(None)
+        return result
 
     def _change_file_time(self, file_path: str, create_time: float, modify_time: float, access_time: float):
         """
