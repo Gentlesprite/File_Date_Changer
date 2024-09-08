@@ -67,7 +67,6 @@ class Ui_Dialog(object):
 
         self.verticalLayout.addWidget(self.time_picker_hms)
 
-
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         self.push_button_ok = PushButton(Dialog)
@@ -79,7 +78,6 @@ class Ui_Dialog(object):
 
         self.horizontalLayout.addWidget(self.push_button_ok)
 
-
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
         self.verticalLayout_2.setStretch(0, 2)
@@ -87,14 +85,13 @@ class Ui_Dialog(object):
 
         self.verticalLayout_3.addLayout(self.verticalLayout_2)
 
-
         self.retranslateUi(Dialog)
 
         QMetaObject.connectSlotsByName(Dialog)
+
     # setupUi
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.push_button_ok.setText(QCoreApplication.translate("Dialog", u"\u786e\u5b9a", None))
     # retranslateUi
-

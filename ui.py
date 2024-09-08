@@ -4,19 +4,20 @@
 # Time:2024/4/15 15:53
 # File:ui
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'app0nQdZPN.ui'
+## Form generated from reading UI file 'app0LgiTin.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
-import os
+
 from PySide6.QtCore import *
 from PySide6.QtGui import *
 from PySide6.QtWidgets import *
-
+import os
 from qfluentwidgets import CheckBox
 from qfluentwidgets import PushButton
 from qfluentwidgets import ToolButton
@@ -27,24 +28,26 @@ from qfluentwidgets import TextEdit
 from qfluentwidgets import TableWidget
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QMainWindow):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(923, 389)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.gridLayout_5 = QGridLayout(self.centralwidget)
-        self.gridLayout_5.setObjectName(u"gridLayout_5")
-        self.gridLayout_4 = QGridLayout()
-        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.gridLayout_3 = QGridLayout(self.centralwidget)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout_2 = QGridLayout()
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.table_widget_info_bar = TableWidget(self.centralwidget)
         self.table_widget_info_bar.setObjectName(u"table_widget_info_bar")
 
-        self.gridLayout_4.addWidget(self.table_widget_info_bar, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.table_widget_info_bar, 0, 0, 1, 1)
 
-        self.gridLayout_3 = QGridLayout()
-        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout = QGridLayout()
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setHorizontalSpacing(3)
+        self.gridLayout.setVerticalSpacing(6)
         self.text_edit_path_input = DropTextEdit(self.centralwidget)
         self.text_edit_path_input.setObjectName(u"text_edit_path_input")
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
@@ -52,24 +55,70 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.text_edit_path_input.sizePolicy().hasHeightForWidth())
         self.text_edit_path_input.setSizePolicy(sizePolicy)
-        self.text_edit_path_input.setMinimumSize(QSize(500, 140))
+        self.text_edit_path_input.setMinimumSize(QSize(500, 130))
+        self.text_edit_path_input.setMaximumSize(QSize(16777215, 130))
 
-        self.gridLayout_3.addWidget(self.text_edit_path_input, 0, 0, 3, 1)
+        self.gridLayout.addWidget(self.text_edit_path_input, 0, 0, 2, 1)
 
+        self.verticalLayout_3 = QVBoxLayout()
+        self.verticalLayout_3.setSpacing(6)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.StrongBodyLabel = StrongBodyLabel(self.centralwidget)
         self.StrongBodyLabel.setObjectName(u"StrongBodyLabel")
         self.StrongBodyLabel.setMinimumSize(QSize(90, 20))
         self.StrongBodyLabel.setMaximumSize(QSize(90, 20))
 
-        self.gridLayout_3.addWidget(self.StrongBodyLabel, 0, 2, 1, 1)
+        self.verticalLayout_3.addWidget(self.StrongBodyLabel)
 
-        self.gridLayout_2 = QGridLayout()
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.gridLayout_4 = QGridLayout()
+        self.gridLayout_4.setObjectName(u"gridLayout_4")
+        self.gridLayout_4.setHorizontalSpacing(4)
+        self.gridLayout_4.setVerticalSpacing(6)
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setSpacing(1)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.check_box_modify_time = CheckBox(self.centralwidget)
+        self.check_box_modify_time.setObjectName(u"check_box_modify_time")
+        self.check_box_modify_time.setMinimumSize(QSize(29, 22))
+        self.check_box_modify_time.setMaximumSize(QSize(90, 20))
+        self.check_box_modify_time.setChecked(True)
+
+        self.verticalLayout_2.addWidget(self.check_box_modify_time)
+
+        self.check_box_create_time = CheckBox(self.centralwidget)
+        self.check_box_create_time.setObjectName(u"check_box_create_time")
+        self.check_box_create_time.setMinimumSize(QSize(29, 22))
+        self.check_box_create_time.setMaximumSize(QSize(90, 20))
+        self.check_box_create_time.setChecked(True)
+
+        self.verticalLayout_2.addWidget(self.check_box_create_time)
+
+        self.check_box_access_time = CheckBox(self.centralwidget)
+        self.check_box_access_time.setObjectName(u"check_box_access_time")
+        self.check_box_access_time.setMinimumSize(QSize(29, 22))
+        self.check_box_access_time.setMaximumSize(QSize(90, 20))
+        self.check_box_access_time.setChecked(True)
+
+        self.verticalLayout_2.addWidget(self.check_box_access_time)
+
+        self.gridLayout_4.addLayout(self.verticalLayout_2, 0, 1, 1, 1)
+
         self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setSpacing(8)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.calendar_picker_ymd = CalendarPicker(self.centralwidget)
+        self.calendar_picker_ymd.setObjectName(u"calendar_picker_ymd")
+        self.calendar_picker_ymd.setMinimumSize(QSize(240, 30))
+        self.calendar_picker_ymd.setMaximumSize(QSize(240, 30))
+        self.calendar_picker_ymd.setAutoDefault(False)
+
+        self.verticalLayout.addWidget(self.calendar_picker_ymd)
+
         self.time_picker_hms = TimePicker(self.centralwidget)
         self.time_picker_hms.setObjectName(u"time_picker_hms")
         self.time_picker_hms.setEnabled(True)
+        self.time_picker_hms.setMinimumSize(QSize(240, 30))
+        self.time_picker_hms.setMaximumSize(QSize(240, 30))
         self.time_picker_hms.setFocusPolicy(Qt.StrongFocus)
         self.time_picker_hms.setStyleSheet(u"ScrollButton {\n"
                                            "    background-color: rgb(249, 249, 249);\n"
@@ -206,46 +255,15 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.time_picker_hms)
 
-        self.calendar_picker_ymd = CalendarPicker(self.centralwidget)
-        self.calendar_picker_ymd.setObjectName(u"calendar_picker_ymd")
-        self.calendar_picker_ymd.setMinimumSize(QSize(240, 30))
-        self.calendar_picker_ymd.setMaximumSize(QSize(240, 30))
-        self.calendar_picker_ymd.setAutoDefault(False)
+        self.gridLayout_4.addLayout(self.verticalLayout, 0, 0, 1, 1)
 
-        self.verticalLayout.addWidget(self.calendar_picker_ymd)
+        self.verticalLayout_3.addLayout(self.gridLayout_4)
 
-        self.gridLayout_2.addLayout(self.verticalLayout, 0, 0, 1, 1)
+        self.gridLayout.addLayout(self.verticalLayout_3, 0, 1, 1, 1)
 
-        self.gridLayout = QGridLayout()
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.check_box_modify_time = CheckBox(self.centralwidget)
-        self.check_box_modify_time.setObjectName(u"check_box_modify_time")
-        self.check_box_modify_time.setMinimumSize(QSize(29, 22))
-        self.check_box_modify_time.setMaximumSize(QSize(90, 20))
-        self.check_box_modify_time.setChecked(True)
-
-        self.gridLayout.addWidget(self.check_box_modify_time, 0, 0, 1, 1)
-
-        self.check_box_create_time = CheckBox(self.centralwidget)
-        self.check_box_create_time.setObjectName(u"check_box_create_time")
-        self.check_box_create_time.setMinimumSize(QSize(29, 22))
-        self.check_box_create_time.setMaximumSize(QSize(90, 20))
-        self.check_box_create_time.setChecked(True)
-
-        self.gridLayout.addWidget(self.check_box_create_time, 1, 0, 1, 1)
-
-        self.check_box_access_time = CheckBox(self.centralwidget)
-        self.check_box_access_time.setObjectName(u"check_box_access_time")
-        self.check_box_access_time.setMinimumSize(QSize(29, 22))
-        self.check_box_access_time.setMaximumSize(QSize(90, 20))
-        self.check_box_access_time.setChecked(True)
-
-        self.gridLayout.addWidget(self.check_box_access_time, 2, 0, 1, 1)
-
-        self.gridLayout_2.addLayout(self.gridLayout, 0, 1, 1, 1)
-
-        self.gridLayout_3.addLayout(self.gridLayout_2, 1, 2, 1, 1)
-
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setSpacing(3)
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.tool_button_open_dir = ToolButton(self.centralwidget)
         self.tool_button_open_dir.setObjectName(u"tool_button_open_dir")
         sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
@@ -256,7 +274,7 @@ class Ui_MainWindow(object):
         self.tool_button_open_dir.setMinimumSize(QSize(30, 30))
         self.tool_button_open_dir.setMaximumSize(QSize(30, 30))
 
-        self.gridLayout_3.addWidget(self.tool_button_open_dir, 2, 1, 1, 1)
+        self.horizontalLayout.addWidget(self.tool_button_open_dir)
 
         self.push_button_change_time = PushButton(self.centralwidget)
         self.push_button_change_time.setObjectName(u"push_button_change_time")
@@ -265,24 +283,16 @@ class Ui_MainWindow(object):
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.push_button_change_time.sizePolicy().hasHeightForWidth())
         self.push_button_change_time.setSizePolicy(sizePolicy2)
-        self.push_button_change_time.setMinimumSize(QSize(335, 30))
-        self.push_button_change_time.setMaximumSize(QSize(335, 30))
+        self.push_button_change_time.setMinimumSize(QSize(300, 30))
+        self.push_button_change_time.setMaximumSize(QSize(300, 30))
 
-        self.gridLayout_3.addWidget(self.push_button_change_time, 2, 2, 1, 1)
+        self.horizontalLayout.addWidget(self.push_button_change_time)
 
-        self.gridLayout_3.setColumnStretch(0, 2)
-        self.gridLayout_3.setColumnStretch(1, 1)
-        self.gridLayout_3.setColumnStretch(2, 2)
-        self.gridLayout_3.setColumnMinimumWidth(0, 2)
-        self.gridLayout_3.setColumnMinimumWidth(1, 1)
-        self.gridLayout_3.setColumnMinimumWidth(2, 2)
-        self.gridLayout_3.setRowMinimumHeight(0, 2)
-        self.gridLayout_3.setRowMinimumHeight(1, 1)
-        self.gridLayout_3.setRowMinimumHeight(2, 2)
+        self.gridLayout.addLayout(self.horizontalLayout, 1, 1, 1, 1)
 
-        self.gridLayout_4.addLayout(self.gridLayout_3, 1, 0, 1, 1)
+        self.gridLayout_2.addLayout(self.gridLayout, 1, 0, 1, 1)
 
-        self.gridLayout_5.addLayout(self.gridLayout_4, 0, 0, 1, 1)
+        self.gridLayout_3.addLayout(self.gridLayout_2, 0, 0, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -297,14 +307,14 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.StrongBodyLabel.setText(
-            QCoreApplication.translate("MainWindow", u"\u8bbe\u5b9a\u5168\u5c40\u65e5\u671f", None))
+            QCoreApplication.translate("MainWindow", u" \u8bbe\u5b9a\u5168\u5c40\u65e5\u671f", None))
+        self.check_box_modify_time.setText(QCoreApplication.translate("MainWindow", u"\u4fee\u6539\u65f6\u95f4", None))
+        self.check_box_create_time.setText(QCoreApplication.translate("MainWindow", u"\u521b\u5efa\u65f6\u95f4", None))
+        self.check_box_access_time.setText(QCoreApplication.translate("MainWindow", u"\u8bbf\u95ee\u65f6\u95f4", None))
         # if QT_CONFIG(tooltip)
         self.time_picker_hms.setToolTip("")
         # endif // QT_CONFIG(tooltip)
         self.time_picker_hms.setText("")
-        self.check_box_modify_time.setText(QCoreApplication.translate("MainWindow", u"\u4fee\u6539\u65f6\u95f4", None))
-        self.check_box_create_time.setText(QCoreApplication.translate("MainWindow", u"\u521b\u5efa\u65f6\u95f4", None))
-        self.check_box_access_time.setText(QCoreApplication.translate("MainWindow", u"\u8bbf\u95ee\u65f6\u95f4", None))
         self.push_button_change_time.setText(QCoreApplication.translate("MainWindow", u"\u4fee\u6539", None))
     # retranslateUi
 
@@ -342,26 +352,19 @@ class DropTextEdit(TextEdit):  # 新建类，命名为 `NewQLineEdit`
         mime_data = clipboard.mimeData()
         if mime_data.hasUrls():
             file_urls = mime_data.urls()
-            # file_paths = [url.toLocalFile() for url in file_urls]
             file_paths = [os.path.normpath(url.toLocalFile()) for url in file_urls]
             expected_dir = [i for i in file_paths if os.path.isfile(i)]
             current_content = self.toPlainText()
             if current_content:
                 expected_dir.extend(os.path.normpath(line.strip()) for line in current_content.split('\n') if
                                     line.strip() and os.path.isfile(line.strip()))
-            # formatted_paths = "\n".join(expected_dir)
-            # self.setText(formatted_paths+'\n')
             self.signal_paste.emit(expected_dir)
         else:
             super().paste()
 
     def keyPressEvent(self, event):
-        clipboard = QApplication.clipboard()
-        mime_data = clipboard.mimeData()
-        if event.matches(QKeySequence.Paste) and mime_data.hasUrls():
+        if event.matches(QKeySequence.Paste):
             # 执行你的操作
-            print("Ctrl+V 被按下")
-            if mime_data.hasUrls():
-                self.paste()
+            self.paste()
         else:
             super().keyPressEvent(event)
