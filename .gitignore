@@ -1,0 +1,11 @@
+.idea/
+__pycache__/
+app/
+output/
+test.txt/
+requirements2.txt
+*.xml
+*.log
+TEST.py
+app.spec
+
