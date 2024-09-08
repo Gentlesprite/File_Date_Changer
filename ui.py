@@ -1,98 +1,85 @@
+# coding=UTF-8
+# Author:Gentlesprite
+# Software:PyCharm
+# Time:2024/4/15 15:53
+# File:ui
 # -*- coding: utf-8 -*-
-import os.path
 
 ################################################################################
-## Form generated from reading UI file '2HYBGYR.ui'
+## Form generated from reading UI file 'app0bpuYRl.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.15.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
+import os
+from PySide2.QtCore import QCoreApplication, QSize, QLocale, QMetaObject, Signal
+from PySide2.QtGui import Qt, QKeySequence
+from PySide2.QtWidgets import QWidget, QGridLayout, QVBoxLayout, QHBoxLayout, QSizePolicy, QApplication
 
-from PySide6.QtCore import *
-from PySide6.QtGui import *
-from PySide6.QtWidgets import *
-
+from qfluentwidgets import CheckBox
 from qfluentwidgets import PushButton
 from qfluentwidgets import CalendarPicker
 from qfluentwidgets import TimePicker
-from qfluentwidgets import LineEdit
-from qfluentwidgets import ListWidget
-from qfluentwidgets import VerticalPipsPager
-from qfluentwidgets import LineEditMenu
-from qfluentwidgets import Action
+from qfluentwidgets import StrongBodyLabel
+from qfluentwidgets import TextEdit
+from qfluentwidgets import TableWidget
 
 
-class Ui_Form(object):
-    def setupUi(self, Form):
-        if not Form.objectName():
-            Form.setObjectName(u"Form")
-        Form.resize(505, 222)
-        Form.setMinimumSize(QSize(505, 222))
-        Form.setMaximumSize(QSize(505, 222))
-        self.verticalLayout_3 = QVBoxLayout(Form)
+class Ui_MainWindow(object):
+    def setupUi(self, MainWindow):
+        if not MainWindow.objectName():
+            MainWindow.setObjectName(u"MainWindow")
+        MainWindow.resize(690, 339)
+        self.centralwidget = QWidget(MainWindow)
+        self.centralwidget.setObjectName(u"centralwidget")
+        self.gridLayout = QGridLayout(self.centralwidget)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_2 = QVBoxLayout()
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout = QVBoxLayout()
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.input_side = QHBoxLayout()
-        self.input_side.setObjectName(u"input_side")
-        self.lineEdit_path_text = NewQLineEdit(Form)
-        self.lineEdit_path_text.setObjectName(u"lineEdit_path_text")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.table_widget_info_bar = TableWidget(self.centralwidget)
+        self.table_widget_info_bar.setObjectName(u"table_widget_info_bar")
+
+        self.verticalLayout_3.addWidget(self.table_widget_info_bar)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.text_edit_path_input = NewQTextEdit(self.centralwidget)
+        self.text_edit_path_input.setObjectName(u"text_edit_path_input")
+        self.text_edit_path_input.setMinimumSize(QSize(280, 100))
+        self.text_edit_path_input.setMaximumSize(QSize(280, 100))
+
+        self.horizontalLayout_2.addWidget(self.text_edit_path_input)
+
+        self.push_button_open_dir = PushButton(self.centralwidget)
+        self.push_button_open_dir.setObjectName(u"push_button_open_dir")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Ignored)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.lineEdit_path_text.sizePolicy().hasHeightForWidth())
-        self.lineEdit_path_text.setSizePolicy(sizePolicy)
-        self.lineEdit_path_text.setMinimumSize(QSize(380, 30))
-        self.lineEdit_path_text.setMaximumSize(QSize(380, 30))
-
-        self.input_side.addWidget(self.lineEdit_path_text)
-
-        self.splitter = QSplitter(Form)
-        self.splitter.setObjectName(u"splitter")
-        self.splitter.setOrientation(Qt.Vertical)
-        self.VerticalPipsPager = VerticalPipsPager(self.splitter)
-        QListWidgetItem(self.VerticalPipsPager)
-        QListWidgetItem(self.VerticalPipsPager)
-        QListWidgetItem(self.VerticalPipsPager)
-        QListWidgetItem(self.VerticalPipsPager)
-        QListWidgetItem(self.VerticalPipsPager)
-        self.VerticalPipsPager.setObjectName(u"VerticalPipsPager")
-        self.VerticalPipsPager.setMinimumSize(QSize(12, 5))
-        self.VerticalPipsPager.setMaximumSize(QSize(12, 5))
-        self.splitter.addWidget(self.VerticalPipsPager)
-        self.push_button_open_dir = PushButton(self.splitter)
-        self.push_button_open_dir.setObjectName(u"push_button_open_dir")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Ignored)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.push_button_open_dir.sizePolicy().hasHeightForWidth())
-        self.push_button_open_dir.setSizePolicy(sizePolicy1)
+        sizePolicy.setHeightForWidth(self.push_button_open_dir.sizePolicy().hasHeightForWidth())
+        self.push_button_open_dir.setSizePolicy(sizePolicy)
         self.push_button_open_dir.setMinimumSize(QSize(20, 20))
         self.push_button_open_dir.setMaximumSize(QSize(20, 20))
-        self.splitter.addWidget(self.push_button_open_dir)
 
-        self.input_side.addWidget(self.splitter)
+        self.horizontalLayout_2.addWidget(self.push_button_open_dir)
 
-        self.push_button_change_time = PushButton(Form)
-        self.push_button_change_time.setObjectName(u"push_button_change_time")
-        self.push_button_change_time.setMinimumSize(QSize(70, 30))
-        self.push_button_change_time.setMaximumSize(QSize(80, 30))
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.verticalLayout_2 = QVBoxLayout()
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.StrongBodyLabel = StrongBodyLabel(self.centralwidget)
+        self.StrongBodyLabel.setObjectName(u"StrongBodyLabel")
 
-        self.input_side.addWidget(self.push_button_change_time)
+        self.verticalLayout_2.addWidget(self.StrongBodyLabel)
 
-        self.verticalLayout.addLayout(self.input_side)
-
-        self.time_side = QHBoxLayout()
-        self.time_side.setObjectName(u"time_side")
-        self.calendar_picker_ymd = CalendarPicker(Form)
+        self.calendar_picker_ymd = CalendarPicker(self.centralwidget)
         self.calendar_picker_ymd.setObjectName(u"calendar_picker_ymd")
+        self.calendar_picker_ymd.setAutoDefault(False)
+        self.calendar_picker_ymd.setDateFormat(Qt.LocalDate)
 
-        self.time_side.addWidget(self.calendar_picker_ymd)
+        self.verticalLayout_2.addWidget(self.calendar_picker_ymd)
 
-        self.time_picker_hms = TimePicker(Form)
+        self.time_picker_hms = TimePicker(self.centralwidget)
         self.time_picker_hms.setObjectName(u"time_picker_hms")
         self.time_picker_hms.setEnabled(True)
         self.time_picker_hms.setFocusPolicy(Qt.StrongFocus)
@@ -229,51 +216,74 @@ class Ui_Form(object):
         self.time_picker_hms.setFlat(False)
         self.time_picker_hms.setSecondVisible(True)
 
-        self.time_side.addWidget(self.time_picker_hms)
+        self.verticalLayout_2.addWidget(self.time_picker_hms)
 
-        self.verticalLayout.addLayout(self.time_side)
+        self.horizontalLayout.addLayout(self.verticalLayout_2)
 
-        self.verticalLayout_2.addLayout(self.verticalLayout)
+        self.verticalLayout = QVBoxLayout()
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.check_box_create_time = CheckBox(self.centralwidget)
+        self.check_box_create_time.setObjectName(u"check_box_create_time")
+        self.check_box_create_time.setChecked(True)
 
-        self.list_widget_info_bar = ListWidget(Form)
-        self.list_widget_info_bar.setObjectName(u"list_widget_info_bar")
-        self.list_widget_info_bar.setMinimumSize(QSize(485, 131))
-        self.list_widget_info_bar.setMaximumSize(QSize(485, 131))
+        self.verticalLayout.addWidget(self.check_box_create_time)
 
-        self.verticalLayout_2.addWidget(self.list_widget_info_bar)
+        self.check_box_modify_time = CheckBox(self.centralwidget)
+        self.check_box_modify_time.setObjectName(u"check_box_modify_time")
+        self.check_box_modify_time.setChecked(True)
 
-        self.verticalLayout_3.addLayout(self.verticalLayout_2)
+        self.verticalLayout.addWidget(self.check_box_modify_time)
 
-        self.retranslateUi(Form)
+        self.check_box_access_time = CheckBox(self.centralwidget)
+        self.check_box_access_time.setObjectName(u"check_box_access_time")
+        self.check_box_access_time.setChecked(True)
+
+        self.verticalLayout.addWidget(self.check_box_access_time)
+
+        self.push_button_change_time = PushButton(self.centralwidget)
+        self.push_button_change_time.setObjectName(u"push_button_change_time")
+        self.push_button_change_time.setMinimumSize(QSize(100, 30))
+        self.push_button_change_time.setMaximumSize(QSize(100, 30))
+
+        self.verticalLayout.addWidget(self.push_button_change_time)
+
+        self.horizontalLayout.addLayout(self.verticalLayout)
+
+        self.horizontalLayout_2.addLayout(self.horizontalLayout)
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_2)
+
+        self.gridLayout.addLayout(self.verticalLayout_3, 0, 0, 1, 1)
+
+        MainWindow.setCentralWidget(self.centralwidget)
+
+        self.retranslateUi(MainWindow)
 
         self.time_picker_hms.setDefault(False)
 
-        QMetaObject.connectSlotsByName(Form)
+        QMetaObject.connectSlotsByName(MainWindow)
 
     # setupUi
 
-    def retranslateUi(self, Form):
-        Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.lineEdit_path_text.setText("")
-
-        __sortingEnabled = self.VerticalPipsPager.isSortingEnabled()
-        self.VerticalPipsPager.setSortingEnabled(False)
-        self.VerticalPipsPager.setSortingEnabled(__sortingEnabled)
-
-        self.push_button_open_dir.setText(QCoreApplication.translate("Form", u"\u00b7\u00b7", None))
-        self.push_button_change_time.setText(QCoreApplication.translate("Form", u"\u4fee\u6539", None))
+    def retranslateUi(self, MainWindow):
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.push_button_open_dir.setText(QCoreApplication.translate("MainWindow", u"\u00b7\u00b7", None))
+        self.StrongBodyLabel.setText(
+            QCoreApplication.translate("MainWindow", u"\u8bbe\u5b9a\u5168\u5c40\u65e5\u671f", None))
         # if QT_CONFIG(tooltip)
         self.time_picker_hms.setToolTip("")
         # endif // QT_CONFIG(tooltip)
         self.time_picker_hms.setText("")
+        self.check_box_create_time.setText(QCoreApplication.translate("MainWindow", u"\u521b\u5efa\u65f6\u95f4", None))
+        self.check_box_modify_time.setText(QCoreApplication.translate("MainWindow", u"\u4fee\u6539\u65f6\u95f4", None))
+        self.check_box_access_time.setText(QCoreApplication.translate("MainWindow", u"\u8bbf\u95ee\u65f6\u95f4", None))
+        self.push_button_change_time.setText(QCoreApplication.translate("MainWindow", u"\u4fee\u6539", None))
     # retranslateUi
 
 
-
-
-
-class NewQLineEdit(LineEdit):  # 新建类，命名为 `NewQLineEdit`
-    signal = Signal(list)
+class NewQTextEdit(TextEdit):  # 新建类，命名为 `NewQLineEdit`
+    signal_drop = Signal(list)
+    signal_paste = Signal(list)
 
     def __init__(self, *args, **kwargs):  # 继承父类构造函数
         super().__init__(*args, **kwargs)
@@ -285,31 +295,34 @@ class NewQLineEdit(LineEdit):  # 新建类，命名为 `NewQLineEdit`
         else:
             event.ignore()  # 忽略拖入或关闭
 
-    def dropEvent(self, event):  # 本方法为父类方法，本方法中的event为鼠标放事件对象
-        urls = [u for u in event.mimeData().urls()]  # 范围文件路径的Qt内部类型对象列表，由于支持多个文件同时拖入所以使用列表存放
-        path: list = []
-        for url in urls:
-            if url not in path:
-                path.append(os.path.normpath(url.path()[1:]))
-        current_content: str = self.text()
+    def dropEvent(self, event):
+        # 获取拖放事件中的URL列表，转换成本地文件路径格式
+        urls = [u.toLocalFile() for u in event.mimeData().urls()]
+        # 从URL中提取文件路径，过滤掉文件夹路径
+        paths = [os.path.normpath(url) for url in urls if os.path.isfile(os.path.normpath(url))]
+        # 将文本框中的文件路径添加到路径列表中，过滤掉重复项
+        current_content = self.toPlainText()
         if current_content:
-            content = current_content.split('&')
-            for i in content:
-                if i.strip():  # 确保去除空白后的项不为空
-                    if i not in path:
-                        path.append(i.strip())  # 添加到路径列表中
-        self.signal.emit(path)
+            paths.extend(os.path.normpath(line.strip()) for line in current_content.split('\n') if
+                         line.strip() and os.path.isfile(line.strip()))
+        # 发送信号，传递路径列表
+        self.signal_drop.emit(paths)
 
     def paste(self):
         clipboard = QApplication.clipboard()
         mime_data = clipboard.mimeData()
-        print(mime_data)
         if mime_data.hasUrls():
             file_urls = mime_data.urls()
-            file_paths = [url.toLocalFile() for url in file_urls]
-            formatted_paths = "&".join(file_paths)
-            self.setText(formatted_paths + '&')
-
+            # file_paths = [url.toLocalFile() for url in file_urls]
+            file_paths = [os.path.normpath(url.toLocalFile()) for url in file_urls]
+            expected_dir = [i for i in file_paths if os.path.isfile(i)]
+            current_content = self.toPlainText()
+            if current_content:
+                expected_dir.extend(os.path.normpath(line.strip()) for line in current_content.split('\n') if
+                                    line.strip() and os.path.isfile(line.strip()))
+            # formatted_paths = "\n".join(expected_dir)
+            # self.setText(formatted_paths+'\n')
+            self.signal_paste.emit(expected_dir)
         else:
             super().paste()
 

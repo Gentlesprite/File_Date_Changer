@@ -1,7 +1,0 @@
-<RCC>
-  <qresource>
-    <file>lan/qfluentwidgets_zh.qm</file>
-    <file>lan/qfluentwidgets_hk.qm</file>
-    <file>res/logo.ico</file>
-  </qresource>
-</RCC>
