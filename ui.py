@@ -27,7 +27,6 @@ from qfluentwidgets import TextEdit
 from qfluentwidgets import TableWidget
 
 
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
@@ -46,7 +45,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3 = QGridLayout()
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.text_edit_path_input = NewQTextEdit(self.centralwidget)
+        self.text_edit_path_input = DropTextEdit(self.centralwidget)
         self.text_edit_path_input.setObjectName(u"text_edit_path_input")
         sizePolicy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
@@ -73,133 +72,133 @@ class Ui_MainWindow(object):
         self.time_picker_hms.setEnabled(True)
         self.time_picker_hms.setFocusPolicy(Qt.StrongFocus)
         self.time_picker_hms.setStyleSheet(u"ScrollButton {\n"
-"    background-color: rgb(249, 249, 249);\n"
-"    border: none;\n"
-"    border-radius: 7px;\n"
-"}\n"
-"\n"
-"CycleListWidget {\n"
-"    background-color: transparent;\n"
-"    border: none;\n"
-"    border-top-left-radius: 7px;\n"
-"    border-top-right-radius: 7px;\n"
-"    outline: none;\n"
-"    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
-"}\n"
-"\n"
-"CycleListWidget::item {\n"
-"    color: black;\n"
-"    background-color: transparent;\n"
-"    border: none;\n"
-"    border-radius: 5px;\n"
-"    margin: 0 4px;\n"
-"    padding-left: 11px;\n"
-"    padding-right: 11px;\n"
-"}\n"
-"\n"
-"CycleListWidget::item:hover {\n"
-"    background-color: rgba(0, 0, 0, 9);\n"
-"}\n"
-"\n"
-"CycleListWidget::item:selected {\n"
-"    background-color: rgba(0, 0, 0, 9);\n"
-"}\n"
-"\n"
-"CycleListWidget::item:selected:active {\n"
-"    background-color: rgba(0, 0, 0, 6);\n"
-"}\n"
-"\n"
-"PickerPanel > #view {\n"
-"    background-color: rgb(249, 249, 249);\n"
-"    border: 1px solid rgba(0, 0, 0, 0.14);\n"
-"    border-ra"
-                        "dius: 7px;\n"
-"}\n"
-"\n"
-"SeparatorWidget {\n"
-"    background-color: rgb(234, 234, 234);\n"
-"}\n"
-"\n"
-"ItemMaskWidget {\n"
-"    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
-"}\n"
-"\n"
-"PickerBase {\n"
-"    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
-"    background: rgba(255, 255, 255, 0.7);\n"
-"    border: 1px solid rgba(0, 0, 0, 0.073);\n"
-"    border-bottom: 1px solid rgba(0, 0, 0, 0.183);\n"
-"    border-radius: 5px;\n"
-"    outline: none;\n"
-"}\n"
-"\n"
-"PickerBase:hover {\n"
-"    background: rgba(249, 249, 249, 0.5);\n"
-"}\n"
-"\n"
-"PickerBase:pressed {\n"
-"    background: rgba(249, 249, 249, 0.3);\n"
-"    border-bottom: 1px solid rgba(0, 0, 0, 0.073);\n"
-"}\n"
-"\n"
-"PickerBase:disabled {\n"
-"    color: rgba(0, 0, 0, 0.36);\n"
-"    background: rgba(255, 255, 255, 0.3);\n"
-"    border: 1px solid rgba(0, 0, 0, 0.06);\n"
-"    border-bottom: 1px solid rgba(0, 0, 0, 0.06);\n"
-"}\n"
-"\n"
-"#pickerButton {\n"
-"    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
-"    colo"
-                        "r: rgba(0, 0, 0, 0.6);\n"
-"    background-color: transparent;\n"
-"    border: none;\n"
-"    outline: none;\n"
-"    padding-left: 10px;\n"
-"    padding-right: 10px;\n"
-"}\n"
-"\n"
-"#pickerButton:disabled {\n"
-"    color: rgba(0, 0, 0, 0.36);\n"
-"}\n"
-"\n"
-"#pickerButton[hasBorder=true]:enabled {\n"
-"    border-right: 1px solid rgba(0, 0, 0, 0.073);\n"
-"}\n"
-"\n"
-"#pickerButton[hasBorder=true]:disabled {\n"
-"    border-right: 1px solid rgba(0, 0, 0, 0.06);\n"
-"}\n"
-"\n"
-"#pickerButton[hasBorder=false] {\n"
-"    border-right: transparent;\n"
-"}\n"
-"\n"
-"#pickerButton[enter=true]:enabled {\n"
-"    color: rgba(0, 0, 0, 0.896);\n"
-"}\n"
-"\n"
-"#pickerButton[hasValue=true]:enabled{\n"
-"    color: rgb(0, 0, 0);\n"
-"}\n"
-"\n"
-"#pickerButton[pressed=true] {\n"
-"    color: rgba(0, 0, 0, 0.6);\n"
-"}\n"
-"\n"
-"#pickerButton[align=\"center\"] {\n"
-"    text-align: center;\n"
-"}\n"
-"\n"
-"#pickerButton[align=\"left\"] {\n"
-"    text-align: left;\n"
-"}\n"
-"\n"
-"#pickerButton[align=\"right\"] {\n"
-"    text-align: right;\n"
-"}\n"
-"")
+                                           "    background-color: rgb(249, 249, 249);\n"
+                                           "    border: none;\n"
+                                           "    border-radius: 7px;\n"
+                                           "}\n"
+                                           "\n"
+                                           "CycleListWidget {\n"
+                                           "    background-color: transparent;\n"
+                                           "    border: none;\n"
+                                           "    border-top-left-radius: 7px;\n"
+                                           "    border-top-right-radius: 7px;\n"
+                                           "    outline: none;\n"
+                                           "    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
+                                           "}\n"
+                                           "\n"
+                                           "CycleListWidget::item {\n"
+                                           "    color: black;\n"
+                                           "    background-color: transparent;\n"
+                                           "    border: none;\n"
+                                           "    border-radius: 5px;\n"
+                                           "    margin: 0 4px;\n"
+                                           "    padding-left: 11px;\n"
+                                           "    padding-right: 11px;\n"
+                                           "}\n"
+                                           "\n"
+                                           "CycleListWidget::item:hover {\n"
+                                           "    background-color: rgba(0, 0, 0, 9);\n"
+                                           "}\n"
+                                           "\n"
+                                           "CycleListWidget::item:selected {\n"
+                                           "    background-color: rgba(0, 0, 0, 9);\n"
+                                           "}\n"
+                                           "\n"
+                                           "CycleListWidget::item:selected:active {\n"
+                                           "    background-color: rgba(0, 0, 0, 6);\n"
+                                           "}\n"
+                                           "\n"
+                                           "PickerPanel > #view {\n"
+                                           "    background-color: rgb(249, 249, 249);\n"
+                                           "    border: 1px solid rgba(0, 0, 0, 0.14);\n"
+                                           "    border-ra"
+                                           "dius: 7px;\n"
+                                           "}\n"
+                                           "\n"
+                                           "SeparatorWidget {\n"
+                                           "    background-color: rgb(234, 234, 234);\n"
+                                           "}\n"
+                                           "\n"
+                                           "ItemMaskWidget {\n"
+                                           "    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
+                                           "}\n"
+                                           "\n"
+                                           "PickerBase {\n"
+                                           "    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
+                                           "    background: rgba(255, 255, 255, 0.7);\n"
+                                           "    border: 1px solid rgba(0, 0, 0, 0.073);\n"
+                                           "    border-bottom: 1px solid rgba(0, 0, 0, 0.183);\n"
+                                           "    border-radius: 5px;\n"
+                                           "    outline: none;\n"
+                                           "}\n"
+                                           "\n"
+                                           "PickerBase:hover {\n"
+                                           "    background: rgba(249, 249, 249, 0.5);\n"
+                                           "}\n"
+                                           "\n"
+                                           "PickerBase:pressed {\n"
+                                           "    background: rgba(249, 249, 249, 0.3);\n"
+                                           "    border-bottom: 1px solid rgba(0, 0, 0, 0.073);\n"
+                                           "}\n"
+                                           "\n"
+                                           "PickerBase:disabled {\n"
+                                           "    color: rgba(0, 0, 0, 0.36);\n"
+                                           "    background: rgba(255, 255, 255, 0.3);\n"
+                                           "    border: 1px solid rgba(0, 0, 0, 0.06);\n"
+                                           "    border-bottom: 1px solid rgba(0, 0, 0, 0.06);\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton {\n"
+                                           "    font: 14px 'Segoe UI', 'Microsoft YaHei', 'PingFang SC';\n"
+                                           "    colo"
+                                           "r: rgba(0, 0, 0, 0.6);\n"
+                                           "    background-color: transparent;\n"
+                                           "    border: none;\n"
+                                           "    outline: none;\n"
+                                           "    padding-left: 10px;\n"
+                                           "    padding-right: 10px;\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton:disabled {\n"
+                                           "    color: rgba(0, 0, 0, 0.36);\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[hasBorder=true]:enabled {\n"
+                                           "    border-right: 1px solid rgba(0, 0, 0, 0.073);\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[hasBorder=true]:disabled {\n"
+                                           "    border-right: 1px solid rgba(0, 0, 0, 0.06);\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[hasBorder=false] {\n"
+                                           "    border-right: transparent;\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[enter=true]:enabled {\n"
+                                           "    color: rgba(0, 0, 0, 0.896);\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[hasValue=true]:enabled{\n"
+                                           "    color: rgb(0, 0, 0);\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[pressed=true] {\n"
+                                           "    color: rgba(0, 0, 0, 0.6);\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[align=\"center\"] {\n"
+                                           "    text-align: center;\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[align=\"left\"] {\n"
+                                           "    text-align: left;\n"
+                                           "}\n"
+                                           "\n"
+                                           "#pickerButton[align=\"right\"] {\n"
+                                           "    text-align: right;\n"
+                                           "}\n"
+                                           "")
         self.time_picker_hms.setLocale(QLocale(QLocale.Chinese, QLocale.China))
         self.time_picker_hms.setAutoDefault(False)
         self.time_picker_hms.setFlat(False)
@@ -213,9 +212,7 @@ class Ui_MainWindow(object):
         self.calendar_picker_ymd.setMaximumSize(QSize(240, 30))
         self.calendar_picker_ymd.setAutoDefault(False)
 
-
         self.verticalLayout.addWidget(self.calendar_picker_ymd)
-
 
         self.gridLayout_2.addLayout(self.verticalLayout, 0, 0, 1, 1)
 
@@ -245,9 +242,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.check_box_access_time, 2, 0, 1, 1)
 
-
         self.gridLayout_2.addLayout(self.gridLayout, 0, 1, 1, 1)
-
 
         self.gridLayout_3.addLayout(self.gridLayout_2, 1, 2, 1, 1)
 
@@ -287,7 +282,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addLayout(self.gridLayout_3, 1, 0, 1, 1)
 
-
         self.gridLayout_5.addLayout(self.gridLayout_4, 0, 0, 1, 1)
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -296,16 +290,17 @@ class Ui_MainWindow(object):
 
         self.time_picker_hms.setDefault(False)
 
-
         QMetaObject.connectSlotsByName(MainWindow)
+
     # setupUi
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.StrongBodyLabel.setText(QCoreApplication.translate("MainWindow", u"\u8bbe\u5b9a\u5168\u5c40\u65e5\u671f", None))
-#if QT_CONFIG(tooltip)
+        self.StrongBodyLabel.setText(
+            QCoreApplication.translate("MainWindow", u"\u8bbe\u5b9a\u5168\u5c40\u65e5\u671f", None))
+        # if QT_CONFIG(tooltip)
         self.time_picker_hms.setToolTip("")
-#endif // QT_CONFIG(tooltip)
+        # endif // QT_CONFIG(tooltip)
         self.time_picker_hms.setText("")
         self.check_box_modify_time.setText(QCoreApplication.translate("MainWindow", u"\u4fee\u6539\u65f6\u95f4", None))
         self.check_box_create_time.setText(QCoreApplication.translate("MainWindow", u"\u521b\u5efa\u65f6\u95f4", None))
@@ -314,14 +309,14 @@ class Ui_MainWindow(object):
     # retranslateUi
 
 
-
-class NewQTextEdit(TextEdit):  # 新建类，命名为 `NewQLineEdit`
+class DropTextEdit(TextEdit):  # 新建类，命名为 `NewQLineEdit`
     signal_drop = Signal(list)
     signal_paste = Signal(list)
 
     def __init__(self, *args, **kwargs):  # 继承父类构造函数
         super().__init__(*args, **kwargs)
         self.setAcceptDrops(True)  # 设置接受拖放动作
+        self.setWordWrapMode(QTextOption.NoWrap)  # 禁用自动换行
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():  # 当文件拖入此区域时为True

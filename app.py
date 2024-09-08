@@ -9,10 +9,9 @@ import sys
 from datetime import datetime
 from typing import Optional
 from PySide6.QtCore import Qt, QLocale, QTranslator, QDateTime
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QVBoxLayout, QFileDialog, QTableWidgetItem, QMainWindow, QDialog, \
-    QHeaderView
-from PySide6.QtGui import QAction
+from PySide6.QtGui import QIcon, QFontMetrics
+from PySide6.QtWidgets import QApplication, QFileDialog, QTableWidgetItem, QMainWindow, QDialog, \
+    QHeaderView, QStyleOptionViewItem, QStyle, QStyledItemDelegate, QScrollArea, QFrame, QLabel, QVBoxLayout
 from loguru import logger
 from qfluentwidgets.common import FluentIcon as FIF
 from win32file import CreateFile, SetFileTime, CloseHandle
@@ -24,6 +23,7 @@ from ui import Ui_MainWindow
 from ui_sec_menu import Ui_Dialog
 from qfluentwidgets import setThemeColor, setTheme, Theme
 from enum import Enum
+from prettytable import PrettyTable
 
 logger.add(
     os.path.join(os.getcwd(), "log.log"),
@@ -40,24 +40,43 @@ class UserFormChangeMode(Enum):
     global_time = 3
 
 
+# class CustomMessageBox(MessageBoxBase):
+#     """ Custom message box """
+#
+#     def __init__(self, title: str, content: str, parent=None):
+#         super().__init__(parent=parent)
+#         scroller = SmoothScrollArea(parent)
+#         widget = QFrame(parent, objectName='centerWidget')
+#         self.scrollLayout = ScrollArea(widget)
+#         self.scrollLayout.setWidget(scroller)
+class MyDialog(Dialog):
+    """ Custom message box """
+
+    def __init__(self, title: str, content: str, parent=None):
+        super().__init__(title, content, parent=parent)
+        # scroller = SmoothScrollArea(parent)
+        # self.scrollLayout = ScrollArea(self.contentLabel)
+        # self.scrollLayout.setWidget(scroller)
+
+
 class SecDialog(QDialog, Ui_Dialog):  # 二级菜单窗口
     signal_time_data = Signal(str)
 
-    def __init__(self):
+    def __init__(self, logo):
         super(SecDialog, self).__init__()
         self.sd = Ui_Dialog()
         self.sd.setupUi(self)
         self.setWindowTitle('设置时间')
-        self.setWindowIcon(QIcon(":/res/logo.ico"))
-        self.init_table()
-        self.init_time()
-        self.band()
+        self.setWindowIcon(logo)
+        self.init_sec_table()
+        self.init_sec_time()
+        self.sec_band()
 
-    def init_time(self):
+    def init_sec_time(self):
         self.sd.calendar_picker_ymd.setDate(QDateTime.currentDateTime().date())
         self.sd.time_picker_hms.setTime(QDateTime.currentDateTime().time())
 
-    def init_table(self):
+    def init_sec_table(self):
         self.sd.table_widget_sec_info_bar.setColumnCount(1)
         self.sd.table_widget_sec_info_bar.setRowCount(2)
         self.sd.table_widget_sec_info_bar.setVerticalHeaderLabels(['当前选择路径'])
@@ -66,8 +85,18 @@ class SecDialog(QDialog, Ui_Dialog):  # 二级菜单窗口
         self.sd.table_widget_sec_info_bar.setItemDelegate(
             CustomDelegate(self.sd.table_widget_sec_info_bar))
 
-    def band(self):
+    def sec_band(self):
         self.sd.push_button_ok.clicked.connect(self.close)
+        self.sd.table_widget_sec_info_bar.itemEntered.connect(self.update_sec_tooltip)
+
+    def update_sec_tooltip(self, item):
+        if item is None:
+            return
+        row: int = item.row()
+        col: int = item.column()
+        title: str = self.sd.table_widget_sec_info_bar.verticalHeaderItem(col).text()
+        file_path: str = self.sd.table_widget_sec_info_bar.item(row, col).text()
+        self.sd.table_widget_sec_info_bar.setToolTip(f'{title}:{file_path}')
 
     def ymd_hms(self) -> str:
         ymd = self.sd.calendar_picker_ymd.getDate()
@@ -89,42 +118,61 @@ class SecDialog(QDialog, Ui_Dialog):  # 二级菜单窗口
 
 
 class CustomDelegate(TableItemDelegate):
+    left_double_click_signal_pos_data = Signal(tuple)
+
     def createEditor(self, parent, option, index):
-        return None
+        pos: tuple = (index.row(), index.column())
+        self.left_double_click_signal_pos_data.emit(pos)  # 发送双击位置
 
 
 class APP(QMainWindow, Ui_MainWindow):
-    software_name = 'File Date Changer'
+    software_name = 'FileDateChanger'
+    software_name_version = '0.4'
+    software_name_author = 'Gentlesprite'
+    software_name_simplified_chinese = '文件日期修改器'
+    software_name_author_simplified_chinese = '雪碧'
+    software_title = ' '.join([software_name_simplified_chinese, f'[{software_name}]', '作者:',
+                               software_name_author_simplified_chinese + f'({software_name_author})'])
+    software_logo = ':/logo0.4.ico'
+    software_theme_color = '#28afe9'
+
+    software_theme_mode = Theme.DARK
     default_path = os.path.abspath(os.getcwd())
 
     def __init__(self):
         super(APP, self).__init__()
         self.file_name: list = []  # 存储路径->[路径]
         self.file_info: dict = {}  # 存储->{路径:[创建时间,修改时间,访问时间]}
-        self.current_left_click_row: int = 0  # 初始化当前点击的行
-        self.current_left_click_column: int = 0  # 初始化当前点击的列
-        self.current_right_click_row: int = 0
-        self.current_right_click_column: int = 0
-        self.time_pos: tuple = 0, 0
+        self.current_left_click_row: int = 0  # 初始化当前鼠标左键单击的行
+        self.current_left_click_column: int = 0  # 初始化当前鼠标左键单击的列
+        self.current_right_click_row: int = 0  # 初始化当前鼠标右键单击的行
+        self.current_right_click_column: int = 0  # 初始化当前鼠标右键单击的列
+        self.current_left_double_click_row: int = 0  # 初始化当前鼠标左键双击的列
+        self.current_left_double_click_column: int = 0  # 初始化当前鼠标左键双击的列
+        self.open_dir_path: str = APP.default_path  # 初始化选择文件夹打开的路径
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        setThemeColor("#28afe9")  # 设置主题颜色
-        setTheme(Theme.DARK)  # 设置暗色主题
+        APP.init_theme()  # 初始化主题
+        self.ui.tool_button_open_dir.setIcon(FIF.MORE.icon())  # 设置打开文件夹的按钮图标
         self.delegate: CustomDelegate = ...  # 定义表格自定义委托
-        self.dialog = SecDialog()  # 用户变更时间的二级窗口
-        self.setWindowTitle('文件日期修改器 By 雪碧(Gentlesprite)')
-        self.setWindowIcon(QIcon(":/res/logo.ico"))
+        self.dialog = SecDialog(QIcon(APP.software_logo))  # 用户变更时间的二级窗口
+        self.setWindowTitle(APP.software_title)
+        self.setWindowIcon(QIcon(APP.software_logo))
+        self.init_global_time_setting()  # 初始化全局时间
         self.init_table()  # 初始化表格内容
-        self.init_time()
-        self.band()
-        self.ui.tool_button_open_dir.setIcon(FIF.MORE.icon())
+        self.band()  # 初始化绑定按键
 
-    def init_time(self):
+    @staticmethod
+    def init_theme():
+        setThemeColor(APP.software_theme_color)  # 设置主题颜色
+        setTheme(APP.software_theme_mode)  # 设置暗色主题
+
+    def init_global_time_setting(self):
         self.ui.calendar_picker_ymd.setDate(QDateTime.currentDateTime().date())
         self.ui.time_picker_hms.setTime(QDateTime.currentDateTime().time())
 
     def init_table(self):
-        self.ui.table_widget_info_bar.setContextMenuPolicy(Qt.CustomContextMenu)  # 设置右键菜单
+        self.ui.table_widget_info_bar.setContextMenuPolicy(Qt.CustomContextMenu)  # 打开右键菜单策略
         self.ui.table_widget_info_bar.setBorderRadius(8)
         self.ui.table_widget_info_bar.setWordWrap(False)
         self.ui.table_widget_info_bar.setRowCount(-1)
@@ -142,28 +190,40 @@ class APP(QMainWindow, Ui_MainWindow):
         # self.ui.table_widget_info_bar.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
 
         # self.ui.table_widget_info_bar.setContextMenuPolicy(Qt.CustomContextMenu)  # 设置策略为自定义菜单
+        self.ui.table_widget_info_bar.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
+        self.ui.table_widget_info_bar.horizontalHeader().setMaximumSectionSize(400)  # 设置最大宽度为200像素
 
     def band(self):
-        self.ui.push_button_change_time.clicked.connect(self.change_time)
+        self.ui.push_button_change_time.clicked.connect(self.change_file_time)
         self.ui.tool_button_open_dir.clicked.connect(lambda: self.open_dir_mode(change_mode=UserFormChangeMode.new))
         self.ui.text_edit_path_input.signal_drop.connect(self.drop_mode)
         self.ui.text_edit_path_input.signal_paste.connect(self.paste_mode)
         self.ui.text_edit_path_input.textChanged.connect(
             lambda: self.typing_mode(self.ui.text_edit_path_input.toPlainText()))
         self.ui.table_widget_info_bar.itemClicked.connect(self.set_table)
-        # self.delegate.signal_time_data.connect(self.receive_time_data)
-
-        self.dialog.signal_time_data.connect(self.receive_time_data)
-        self.ui.table_widget_info_bar.cellClicked.connect(self.get_left_clicked_pos)
-        self.ui.table_widget_info_bar.customContextMenuRequested.connect(self.get_right_clicked_pos)
+        self.ui.table_widget_info_bar.cellClicked.connect(self.receive_left_clicked_pos)
+        self.ui.table_widget_info_bar.customContextMenuRequested.connect(self.receive_right_clicked_pos)
         self.ui.table_widget_info_bar.itemEntered.connect(self.update_tooltip)
+
         self.ui.calendar_picker_ymd.dateChanged.connect(self.
-                                                        global_ymd)
-        self.ui.time_picker_hms.timeChanged.connect(self.global_hms)
+                                                        receive_global_ymd)
+        self.ui.time_picker_hms.timeChanged.connect(self.receive_global_hms)
+        self.delegate.left_double_click_signal_pos_data.connect(self.receive_left_double_clicked_pos)
+        # self.dialog.signal_time_data.connect(self.receive_time_data)
+        self.dialog.signal_time_data.connect(lambda res: self.set_table(
+            change_mode=UserFormChangeMode.local_time,
+            data=(res, self.current_left_double_click_row, self.current_left_double_click_column)
+        ))
 
-    def global_ymd(self, time):
+    def receive_global_ymd(self, time):
+        """
+        :param time:
+            全局时分秒变量,
+            更改到表格中
+            同时更新self.file_name和self.file_info
+        :return:
+        """
         ymd_str = datetime(time.year(), time.month(), time.day()).strftime('%Y年%#m月%#d日')
-
         if self.file_info:
             file_info = self.file_info.copy()
 
@@ -194,7 +254,14 @@ class APP(QMainWindow, Ui_MainWindow):
         else:
             print("Warning: `self.file_info` is empty. No updates were made.")
 
-    def global_hms(self, time):
+    def receive_global_hms(self, time) -> None:
+        """
+        :param time:
+            全局时分秒变量,
+            更改到表格中
+            同时更新self.file_name和self.file_info
+        :return:
+        """
         hms_str = f"{time.hour():02d}:{time.minute():02d}:{time.second():02d}"  # 使用f-string直接格式化时分秒
         if self.file_info:
             file_info = self.file_info.copy()
@@ -240,20 +307,72 @@ class APP(QMainWindow, Ui_MainWindow):
         file_path: str = self.ui.table_widget_info_bar.item(row, col).text()
         self.ui.table_widget_info_bar.setToolTip(f'{title}:{file_path}')
 
-    def get_left_clicked_pos(self, row: int, column: int) -> None:  # 实时更新点击的行和列
-        logger.debug(f'点击了第行:{row},列:{column}')
+    def receive_left_double_clicked_pos(self, pos: tuple) -> None:
+        """
+        接收鼠标左键双击的行、列数据,
+        并实时更新到->self.left_double_click_row, self.left_double_click_column,
+        实现全局引用。
+        并能根据行列不同,触发不同的事件。
+            鼠标左键双击路径列(0)->触发修改文件事件(open_dir_mode)
+            鼠标左键双击路径列(1-3)->触发修改日期事件(open_time_picker_dialog)
+        :param pos:
+            类型:tuple
+            记录行和列的元祖
+        :return:
+            None
+        """
+        self.current_left_double_click_row: int = pos[0]
+        self.current_left_double_click_column: int = pos[1]
+        if self.current_left_double_click_column == 0:
+            self.open_dir_mode(change_mode=UserFormChangeMode.path, pos=pos)
+        elif self.current_left_double_click_column in range(1, 4):
+            self.open_time_picker_dialog(pos)
+
+    def receive_left_clicked_pos(self, row: int, column: int) -> None:  # 实时更新点击的行和列
+        """
+        接收鼠标左键单击的行、列数据,
+        并实时更新到->self.current_left_click_row,self.current_left_click_column,
+        实现全局引用。
+        并能根据行列的不同,触发不同的事件。
+        :param row:
+            类型:int
+            记录行
+        :param column:
+            类型:int
+            记录列
+        :return:
+            None
+        """
+        # logger.debug(f'点击了第行:{row},列:{column}')
         self.current_left_click_row: int = row
         self.current_left_click_column: int = column
-        _pos = self.current_left_click_row, self.current_left_click_column
-        if self.current_left_click_column == 0:
-            self.open_dir_mode(change_mode=UserFormChangeMode.path, pos=_pos)
-        elif self.current_left_click_column in range(1, 4):
-            self.open_time_picker_dialog(pos=_pos)
+        if column == 0:
+            ...
+            # 定义左键单击路径列事件
+        elif column in range(1, 4):
+            logger.debug(f'点击了第行:{row},列:{column}')
+            time: str = self.ui.table_widget_info_bar.item(row, column).text()  # 拿到对应表格时间
+            q_time: QDateTime = QDateTime.fromString(time, "yyyy年M月d日 H:mm:ss")
+            self.ui.calendar_picker_ymd.dateChanged.disconnect()
+            self.ui.time_picker_hms.timeChanged.disconnect()
+            self.ui.calendar_picker_ymd.setDate(q_time.date())
+            self.ui.time_picker_hms.setTime(q_time.time())
+            self.ui.calendar_picker_ymd.dateChanged.connect(self.
+                                                            receive_global_ymd)
+            self.ui.time_picker_hms.timeChanged.connect(self.receive_global_hms)
+            # 定义左键单击时间列事件
 
-    def single_change(self):
-        pass
-
-    def get_right_clicked_pos(self, pos) -> None:
+    def receive_right_clicked_pos(self, pos: tuple) -> None:
+        """
+        接收鼠标右键单击的行、列数据,
+        并实时更新到->self.current_right_click_row,self.current_right_click_column,
+        实现全局引用。
+        :param pos:
+            类型:tuple
+            记录行和列的元祖
+        :return:
+            None
+        """
         menu = RoundMenu()
         if self.file_info and self.file_name:
             self.current_right_click_row: int = self.ui.table_widget_info_bar.rowAt(pos.y())  # 获取当前右键的行
@@ -283,13 +402,17 @@ class APP(QMainWindow, Ui_MainWindow):
                            )
         menu.exec(self.ui.table_widget_info_bar.mapToGlobal(pos))
 
-    def receive_time_data(self, new_time: str) -> None:  # 更新用户通过二级窗口手动选择的日期到表格中,并且更新到self.file_info字典
-        # 通过当前点击行列数来获取当前第一列的路径数据
-        data = new_time, self.time_pos[0], self.time_pos[1]
-        self.set_table(change_mode=UserFormChangeMode.local_time, data=data)
-
     @staticmethod
     def get_file_time(file_path: str) -> list:
+        """
+        得到文件的创建日期,修改日期,访问日期
+        :param file_path:
+            类型:str
+            需要得到日期列表的路径
+        :return:
+            类型:list
+            [创建日期,修改日期,访问日期]
+        """
         time_format: str = '%Y年%#m月%#d日 %H:%M:%S'
         create_time: str = datetime.fromtimestamp(os.path.getctime(file_path)).strftime(time_format)
         modify_time: str = datetime.fromtimestamp(os.path.getmtime(file_path)).strftime(time_format)
@@ -321,12 +444,6 @@ class APP(QMainWindow, Ui_MainWindow):
                 self.ui.table_widget_info_bar.setItem(row_position, 1, create_time_item)
                 self.ui.table_widget_info_bar.setItem(row_position, 2, modify_time_item)
                 self.ui.table_widget_info_bar.setItem(row_position, 3, access_time_item)
-                # self.ui.table_widget_info_bar.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-                # self.ui.table_widget_info_bar.horizontalHeader().setSectionResizeMode(
-                #     QHeaderView.ResizeMode.ResizeToContents)
-                # self.ui.table_widget_info_bar.horizontalHeader().setSectionResizeMode(0, QHeaderView.Interactive)
-                # self.ui.table_widget_info_bar.horizontalHeader().setMaximumSectionSize(200)  # 设置最大宽度为200像素
-                # 滚动到新增的项
                 self.file_info[file_path] = [create_time, modify_time, access_time]
                 self.ui.table_widget_info_bar.scrollToItem(path_item)
 
@@ -445,22 +562,6 @@ class APP(QMainWindow, Ui_MainWindow):
                         all_items[current_row_key].append(text)
         return all_items
 
-    # def _get_all_items(self):  # 查
-    #     # 获取行数和列数
-    #     total_rows: int = self.ui.table_widget_info_bar.rowCount()  # 行
-    #     total_columns: int = self.ui.table_widget_info_bar.columnCount()  # 列
-    #     # 逐行获取每个项的内容
-    #     all_items: list = [] # 将all_items定义为字典
-    #
-    #     for row in range(total_rows):
-    #         for column in range(total_columns):
-    #             item: QTableWidgetItem = self.ui.table_widget_info_bar.item(row, column)
-    #             if item is not None:
-    #                 all_items.append(item.text())
-    #     return all_items
-    #     "需求"
-    #     '1.表格规律:表格的第一列是文件路径,第二列是创建时间,第三列是修改时间,第四列是访问时间'
-    #     '2.将all_items定义为字典,通过遍历所有行列，将字典进行填充,格式为all_items={文件路径:[创建时间,修改时间,访问时间]}'
     def _no_signal_change_text(self):
         self.ui.text_edit_path_input.textChanged.disconnect()
         self.ui.text_edit_path_input.setText('\n'.join(self.file_name) if self.file_name else '')
@@ -468,12 +569,13 @@ class APP(QMainWindow, Ui_MainWindow):
             lambda: self.typing_mode(self.ui.text_edit_path_input.toPlainText()))
 
     def open_dir_mode(self, change_mode=UserFormChangeMode.new, **kwargs):  # 打开文件夹模式
-        # default_path = os.path.abspath(os.getcwd())
-        default_path = 'D:\\2'
+
+        self.open_dir_path = APP.default_path if not os.path.isdir(self.open_dir_path) else self.open_dir_path
         if change_mode == UserFormChangeMode.new:
             data: list = [os.path.normpath(i) for i in
-                          QFileDialog.getOpenFileNames(self, "选择文件", default_path, "All Files (*)")[
+                          QFileDialog.getOpenFileNames(self, "选择文件", self.open_dir_path, "All Files (*)")[
                               0]]
+            self.open_dir_path = os.path.dirname(os.path.normpath(data[-1])) if data else self.open_dir_path
             if self.file_name:
                 for i in data:
                     if i.lower() not in [f.lower() for f in self.file_name]:
@@ -487,7 +589,7 @@ class APP(QMainWindow, Ui_MainWindow):
             # todo:当前有项才能选择
             if self.file_info:  # 首先判断表中要有项
                 pos: tuple = kwargs['pos']  # 再得到鼠标选择的表格位置
-                new_key: str = QFileDialog.getOpenFileName(self, "选择文件", default_path, "All Files (*)")[0]
+                new_key: str = QFileDialog.getOpenFileName(self, "选择文件", self.open_dir_path, "All Files (*)")[0]
                 # 加入对项中已存在的文件进行判断
                 if os.path.normpath(new_key) in self.file_name:
                     logger.warning(f'{new_key}已存在!')
@@ -499,29 +601,39 @@ class APP(QMainWindow, Ui_MainWindow):
                 logger.error(self.tr('未选择任何项'))
 
     def open_time_picker_dialog(self, pos):
-
-        self.time_pos = pos  # 更新点击位置
-        row, column = pos
         try:
-            path = self.ui.table_widget_info_bar.item(row, 0).text()  # 得到路径
-            self.dialog.sd.table_widget_sec_info_bar.setItem(0, 0, QTableWidgetItem(path))  # 设置路径到表格中
-            create_time, modify_time, access_time = self.get_file_time(file_path=path)  # 得到日期信息
-            text: str = ''
-            time_type: str = ''
-            if column == 1:
-                text = '当前创建时间'
-                time_type = create_time
-            elif column == 2:
-                text = '当前修改时间'
-                time_type = modify_time
-            elif column == 3:
-                text = '当前访问时间'
-                time_type = access_time
-            self.dialog.setWindowTitle(text.replace('当前', '变更'))
-            self.dialog.sd.table_widget_sec_info_bar.setItem(1, 0, QTableWidgetItem(time_type))
-            self.dialog.sd.table_widget_sec_info_bar.setVerticalHeaderItem(1, QTableWidgetItem(text))
-            if self.time_pos is not None:
+            if pos and self.file_name and self.file_info:
+                logger.debug(pos)
+                row, column = pos
+                q_format = "yyyy年M月d日 H:mm:ss"
+                path = self.ui.table_widget_info_bar.item(row, 0).text()  # 得到路径
+                self.dialog.sd.table_widget_sec_info_bar.setItem(0, 0, QTableWidgetItem(path))  # 设置路径到表格中
+                self.dialog.sd.table_widget_sec_info_bar.setToolTip(f'路径:{path}')
+
+                create_time, modify_time, access_time = self.get_file_time(file_path=path)  # 得到日期信息
+                text: str = ''
+                time_type: str = ''
+                if column == 1:
+                    text = '当前创建时间'
+                    time_type: str = create_time
+
+                elif column == 2:
+                    text: str = '当前修改时间'
+                    time_type: str = modify_time
+                elif column == 3:
+                    text: str = '当前访问时间'
+                    time_type: str = access_time
+                # 获取点击的内容的时间
+                q_time: QDateTime = QDateTime.fromString(time_type, q_format)
+                self.dialog.sd.calendar_picker_ymd.setDate(q_time.date())
+                self.dialog.sd.time_picker_hms.setTime(q_time.time())  # 设置与点击内容一致的时间
+
+                self.dialog.setWindowTitle(text.replace('当前', '变更'))
+                self.dialog.sd.table_widget_sec_info_bar.setItem(1, 0, QTableWidgetItem(time_type))
+                self.dialog.sd.table_widget_sec_info_bar.setVerticalHeaderItem(1, QTableWidgetItem(text))
                 self.dialog.exec()
+            else:
+                logger.error('未找到任何项')
         except Exception as e:
             logger.error(e)
 
@@ -563,6 +675,12 @@ class APP(QMainWindow, Ui_MainWindow):
                 self.delete_content(item)
             self._process_new_table()
 
+    def show_message(self, message, title='提示'):
+        #
+        pm = MessageBox(title=title, content=message, parent=self)
+
+        pm.show()
+
     def checker(func):
         def wrapper(self, *args, **kwargs):
             ymd = self.ui.calendar_picker_ymd.getDate()
@@ -570,17 +688,15 @@ class APP(QMainWindow, Ui_MainWindow):
             path: str = self.ui.text_edit_path_input.toPlainText().strip()  # 去除首尾空白字符
 
             # 用于显示错误消息的统一函数
-            def show_error_message(message):
-                MessageBox(title='提示', content=message, parent=self).show()
 
             if not path:
-                show_error_message('内容为空!')
+                self.show_message('内容为空!')
                 return
             if ymd.isNull():
-                show_error_message('未选择年月日!')
+                self.show_message('未选择年月日!')
                 return
             if hms.isNull():
-                show_error_message('未选择时分秒!')
+                self.show_message('未选择时分秒!')
                 return
             # 判断路径是否以'&'结尾，且是否为有效路径
             if not path.endswith('\n') and os.path.exists(path):
@@ -604,7 +720,7 @@ class APP(QMainWindow, Ui_MainWindow):
                     self.ui.text_edit_path_input.setText(new_path)
                 else:
                     # 如果没有有效路径，则不执行原函数
-                    show_error_message('没有有效的路径。')
+                    self.show_message('没有有效的路径。')
                     return
             # 执行原函数
             return func(self, *args, **kwargs)
@@ -612,40 +728,66 @@ class APP(QMainWindow, Ui_MainWindow):
         return wrapper
 
     @checker
-    def change_time(self):
+    def change_file_time(self):
+        result: dict = {}
         logger.debug(f'所有文件路径{self.file_name},时间信息{self.file_info}')
         for file_name, time_info in self.file_info.items():
             create_time, modify_time, access_time = time_info
             create_time_stamp = datetime.strptime(create_time, '%Y年%m月%d日 %H:%M:%S').timestamp()
             modify_time_stamp = datetime.strptime(modify_time, '%Y年%m月%d日 %H:%M:%S').timestamp()
             access_time_stamp = datetime.strptime(access_time, '%Y年%m月%d日 %H:%M:%S').timestamp()
+            _file_path, _result, _reason = APP._change_file_time(file_path=file_name, create_time=create_time_stamp,
+                                                                 modify_time=modify_time_stamp,
+                                                                 access_time=access_time_stamp)
+            result[_file_path] = [_result, _reason]
+        logger.debug(result)
+        pt_from = PrettyTable(['文件路径', '错误原因'])
+        _info = []
+        error_info: dict = {}
+        for i in result.items():
+            _info.append(i)
+        for j in _info:
+            if j[1][0] is False:
+                print(j[0],j[1][1])
+                error_info[j[0]] = f'{j[1][1]}'
+        print(error_info)
+        ei = '\n'.join([f'文件{j[0]} 原因:{j[1]}' for j in error_info.items()])
 
-            res = APP.modifyFileTime(filePath=file_name, createTime=create_time_stamp, modifyTime=modify_time_stamp,
-                                     accessTime=access_time_stamp)
-            if res == 0:
-                logger.debug(f'修改文件 {file_name} 时间完成')
-            else:
-                logger.error(f'修改文件 {file_name} 时间失败: {res}')
+        if error_info:
+            MyDialog(title='修改状态', content=f'找到如下错误信息:\n{ei}\n其余全部修改成功').show()
+        else:
+            MyDialog(title='修改状态', content=f'修改成功').show()
 
     @staticmethod
-    def modifyFileTime(filePath, createTime, modifyTime, accessTime):
+    def print_univ_list(u_list, num):
+        tplt = "{0:{2}^10}\t{1:{2}^10}\t"
+        print(tplt.format('文件路径', '错误原因', chr(12288)))
+        for n in range(num):
+            u = u_list[n]
+            return tplt.format(u[0], u[1], u[2], chr(12288))
+
+    @staticmethod
+    def _change_file_time(file_path: str, create_time: float, modify_time: float, access_time: float):
         """
         用来修改任意文件的相关时间属性，时间格式：时间戳
-        :param filePath: 文件路径名
-        :param createTime: 创建时间（时间戳）
-        :param modifyTime: 修改时间（时间戳）
-        :param accessTime: 访问时间（时间戳）
+        :param file_path: 文件路径名
+        :param create_time: 创建时间（时间戳）
+        :param modify_time: 修改时间（时间戳）
+        :param access_time: 访问时间（时间戳）
         """
+        result: bool = False
+        reason = None
         try:
-            fh = CreateFile(filePath, GENERIC_READ | GENERIC_WRITE, 0, None, OPEN_EXISTING, 0, 0)
-            create_time = datetime.fromtimestamp(createTime)
-            access_time = datetime.fromtimestamp(accessTime)
-            modify_time = datetime.fromtimestamp(modifyTime)
+            fh = CreateFile(file_path, GENERIC_READ | GENERIC_WRITE, 0, None, OPEN_EXISTING, 0, 0)
+            create_time = datetime.fromtimestamp(create_time)
+            access_time = datetime.fromtimestamp(access_time)
+            modify_time = datetime.fromtimestamp(modify_time)
             SetFileTime(fh, create_time, access_time, modify_time)
             CloseHandle(fh)
-            return 0
-        except Exception as e:
-            return e
+            result = True
+        except Exception as error:
+            reason = error
+        return file_path, result, reason
 
     @staticmethod
     def setDpiFromWindowsSettings():
@@ -654,29 +796,12 @@ class APP(QMainWindow, Ui_MainWindow):
         :return:
         """
         QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.Ceil)
-        # QApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-        # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-        # QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-
-
-class CustomFlyoutView(FlyoutViewBase):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.vBoxLayout = QVBoxLayout(self)
-        self.label = BodyLabel(
-            '设置成功')
-        self.button = PrimaryPushButton('确定')
-        self.button.clicked.connect(self.close)
-        self.button.setFixedWidth(140)
-        self.vBoxLayout.setSpacing(12)
-        self.vBoxLayout.setContentsMargins(20, 16, 20, 16)
-        self.vBoxLayout.addWidget(self.label)
-        self.vBoxLayout.addWidget(self.button)
 
 
 if __name__ == "__main__":
     APP.setDpiFromWindowsSettings()
     app = QApplication(sys.argv)
+    app.setStyle('Fusion')
     translator = QTranslator()
     translator.load(QLocale.system(), ":/lan/qfluentwidgets_")
     app.installTranslator(translator)

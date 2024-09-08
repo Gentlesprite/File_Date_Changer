@@ -10,14 +10,16 @@ nuitka --standalone --enable-plugin=pyside2 --show-memory --show-progress --onef
 """
 
 import os
+from app import APP
 
-app_name = 'FileDateChanger'
-ico_path = '../../res/logo.ico'
+app_name = APP.software_name
+ico_path = '../../res/logo0.4.ico'
 output = 'output'
 main = 'app.py'
 enable_plug = 'pyside6'
-file_version = '0.4'
-copy_right = 'Copyright (C) 2024 Gentlesprite.'
+file_version = APP.software_name_version
+author = APP.software_name_author
+copy_right = f'Copyright (C) 2024 {author}.'
 include_module = r'ui_sec_menu,res_rc,ui'
 build_command = f'nuitka --standalone --enable-plugin={enable_plug} --show-memory --show-progress --onefile '
 build_command += f'--disable-console --output-dir={output} --file-version={file_version} '
