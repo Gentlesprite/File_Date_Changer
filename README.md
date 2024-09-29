@@ -32,7 +32,7 @@ Github:[点击跳转下载](https://github.com/Gentlesprite/file-date-changer/re
 
 # 视频教程
 
-[点击观看](https://www.bilibili.com/video/BV1LkxkevEVj/)
+B站视频教程:[点击观看](https://www.bilibili.com/video/BV1LkxkevEVj/)
 
 
 # 软件效果:
