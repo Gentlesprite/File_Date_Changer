@@ -48,4 +48,4 @@ B站视频教程:[点击观看](https://www.bilibili.com/video/BV1LkxkevEVj/)
 
   # 支持作者:
 
-![image](https://github.com/Gentlesprite/file-date-changer/blob/main/res/pay.png)
+![image](https://github.com/Gentlesprite/File_Date_Changer/blob/main/res/pay.png)
