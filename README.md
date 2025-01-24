@@ -1,11 +1,11 @@
 <p align="center">
-  <img width="15%" align="center" src="https://github.com/Gentlesprite/file-date-changer/blob/main/res/logo.png" alt="logo">
+  <img width="15%" align="center" src="https://github.com/Gentlesprite/File_Date_Changer/blob/main/res/logo.png" alt="logo">
 </p>
   <h1 align="center">
-  file-date-changer
+  File_Date_Changer
 </h1>
 <p align="center">
-  A file time changer tool on windows platform based on Python
+  A file time changer tool on windows platform based on Python.
 </p>
 <p align="center">
   <a style="text-decoration:none">
@@ -28,7 +28,7 @@
 # 下载地址:
 蓝奏云:[点击跳转下载](https://wwm.lanzn.com/b0foiwt6f) 密码:1x1h
 
-Github:[点击跳转下载](https://github.com/Gentlesprite/file-date-changer/releases)
+Github:[点击跳转下载](https://github.com/Gentlesprite/File_Date_Changer/releases)
 
 # 视频教程
 
@@ -36,10 +36,10 @@ B站视频教程:[点击观看](https://www.bilibili.com/video/BV1LkxkevEVj/)
 
 
 # 软件效果:
-![image](https://github.com/Gentlesprite/file-date-changer/blob/main/res/20240607175434.png)
-![image](https://github.com/Gentlesprite/file-date-changer/blob/main/res/20240607175514.png)
-![image](https://github.com/Gentlesprite/file-date-changer/blob/main/res/20240607175448.png)
-![image](https://github.com/Gentlesprite/file-date-changer/blob/main/res/20240607175527.png)
+![image](https://github.com/Gentlesprite/File_Date_Changer/blob/main/res/20240607175434.png)
+![image](https://github.com/Gentlesprite/File_Date_Changer/blob/main/res/20240607175514.png)
+![image](https://github.com/Gentlesprite/File_Date_Changer/blob/main/res/20240607175448.png)
+![image](https://github.com/Gentlesprite/File_Date_Changer/blob/main/res/20240607175527.png)
 
 # 联系作者:
   Telegram:@Gentlesprite
